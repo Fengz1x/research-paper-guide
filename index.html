@@ -758,9 +758,49 @@
         display: block;
       }
 
+      .paper-kicker__trail {
+        gap: 5px;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .paper-kicker__trail::-webkit-scrollbar {
+        display: none;
+      }
+
       .paper-kicker__actions {
         justify-content: flex-start;
         margin: 8px 0 0;
+      }
+
+      .paper-meta {
+        font-size: 0.76rem;
+        line-height: 1.2;
+      }
+
+      .meta-separator {
+        font-size: 0.72rem;
+      }
+
+      .taxonomy-breadcrumb {
+        flex-wrap: nowrap;
+        flex: 0 0 auto;
+        gap: 4px;
+        min-width: max-content;
+      }
+
+      .taxonomy-crumb,
+      .taxonomy-current {
+        font-size: 0.68rem;
+        line-height: 1.15;
+        white-space: nowrap;
+      }
+
+      .taxonomy-current {
+        padding: 3px 6px;
+        border-radius: 7px;
       }
     }
 
