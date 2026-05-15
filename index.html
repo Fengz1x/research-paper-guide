@@ -1,0 +1,1940 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8fa">
+  <title>ICML Deep Learning 论文导读 2024-2026</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f8fa;
+      --surface: #ffffff;
+      --ink: #17202a;
+      --muted: #5f6b7a;
+      --line: #d8dee8;
+      --accent: #006d77;
+      --accent-strong: #004f57;
+      --chip: #eef3f5;
+      --shadow: 0 16px 38px rgba(23, 32, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: rgba(0, 109, 119, 0.18);
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 20;
+      padding: 10px 14px;
+      background: var(--accent-strong);
+      color: #ffffff;
+      border-radius: 6px;
+      transform: translateY(-72px);
+      transition: transform 160ms ease;
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+      outline: 3px solid #88d4dc;
+      outline-offset: 2px;
+    }
+
+    a {
+      color: var(--accent-strong);
+      text-decoration-thickness: 0.08em;
+      text-underline-offset: 0.2em;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button,
+    .taxonomy-link {
+      touch-action: manipulation;
+    }
+
+    :focus-visible {
+      outline: 3px solid #f4a261;
+      outline-offset: 3px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      padding: 28px 24px;
+      overflow-y: auto;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(12px);
+    }
+
+    .site-title {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .site-subtitle,
+    .stats,
+    .result-status {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .mobile-filter-toggle {
+      display: none;
+      width: 100%;
+      min-height: 42px;
+      margin-top: 16px;
+      padding: 9px 12px;
+      border: 1px solid rgba(0, 109, 119, 0.36);
+      border-radius: 8px;
+      background: #d7f0ee;
+      color: var(--accent-strong);
+      cursor: pointer;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .mobile-filter-toggle[aria-expanded="true"] {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .filter-panel {
+      display: block;
+    }
+
+    .search-box {
+      width: 100%;
+      margin: 20px 0 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--ink);
+    }
+
+    .filter-section {
+      margin-top: 22px;
+    }
+
+    .filter-section h2 {
+      margin: 0 0 10px;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-chip,
+    .taxonomy-link {
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--chip);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .filter-chip {
+      padding: 7px 10px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .filter-chip[aria-pressed="true"],
+    .taxonomy-link[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .filter-chip:hover,
+    .taxonomy-link:hover {
+      border-color: rgba(0, 109, 119, 0.46);
+      background: #e3edf0;
+    }
+
+    .taxonomy-nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .taxonomy-node {
+      min-width: 0;
+    }
+
+    .taxonomy-row {
+      display: grid;
+      grid-template-columns: 24px minmax(0, 1fr);
+      gap: 6px;
+      align-items: stretch;
+    }
+
+    .taxonomy-row.level-1 {
+      margin-top: 8px;
+    }
+
+    .taxonomy-row.level-2 {
+      margin-left: 12px;
+    }
+
+    .taxonomy-toggle {
+      display: grid;
+      place-items: center;
+      min-width: 24px;
+      min-height: 34px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f7f9fb;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .taxonomy-toggle:hover {
+      border-color: rgba(0, 109, 119, 0.46);
+      background: #e3edf0;
+      color: var(--accent-strong);
+    }
+
+    .taxonomy-toggle-icon {
+      line-height: 1;
+      transition: transform 160ms ease;
+    }
+
+    .taxonomy-toggle[aria-expanded="true"] .taxonomy-toggle-icon {
+      transform: rotate(90deg);
+    }
+
+    .taxonomy-children {
+      display: grid;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .taxonomy-children[hidden] {
+      display: none;
+    }
+
+    .taxonomy-link {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 9px;
+      text-decoration: none;
+    }
+
+    .taxonomy-link.level-0 {
+      font-weight: 800;
+    }
+
+    .taxonomy-link.level-1 {
+      font-weight: 800;
+      background: #e6f2f3;
+    }
+
+    .taxonomy-link.level-2 {
+      font-size: 0.9rem;
+    }
+
+    .taxonomy-link.level-3 {
+      margin-left: 42px;
+      padding-block: 6px;
+      font-size: 0.84rem;
+      color: var(--muted);
+      background: #f7f9fb;
+    }
+
+    .taxonomy-name {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .taxonomy-count {
+      min-width: 2.3em;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(23, 32, 42, 0.08);
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+    }
+
+    #main {
+      min-width: 0;
+      padding: 34px clamp(18px, 4vw, 56px) 56px;
+    }
+
+    .page-header {
+      max-width: 1180px;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.6rem, 2.5vw, 2.65rem);
+      line-height: 1.05;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    .page-header p {
+      max-width: 960px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.04rem;
+    }
+
+    .spotlight-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .spotlight-filter {
+      min-height: 40px;
+      padding: 9px 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #eef1f4;
+      color: var(--ink);
+      font-weight: 800;
+      cursor: pointer;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .spotlight-filter[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: #d7f0ee;
+      color: var(--accent-strong);
+    }
+
+    .spotlight-filter--only {
+      border-color: rgba(225, 164, 0, 0.42);
+      background: #fff0bd;
+      color: #6f4a00;
+    }
+
+    .spotlight-filter--only[aria-pressed="true"] {
+      border-color: #d9a300;
+      background: #e3aa00;
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(188, 133, 0, 0.18);
+    }
+
+    .paper-list {
+      display: grid;
+      gap: 18px;
+      max-width: 1180px;
+    }
+
+    .taxonomy-section {
+      scroll-margin-top: 24px;
+      margin-top: 28px;
+    }
+
+    .taxonomy-section:first-child {
+      margin-top: 0;
+    }
+
+    .taxonomy-section[hidden] {
+      display: none;
+    }
+
+    .taxonomy-section.level-1 > h2 {
+      margin: 0 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--accent);
+      font-size: 1.35rem;
+      color: var(--accent-strong);
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    .taxonomy-section.level-2 > h3 {
+      margin: 18px 0 12px;
+      padding: 5px 10px;
+      border-left: 4px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      background: #eef6f7;
+      font-size: 1.05rem;
+      scroll-margin-top: 24px;
+    }
+
+    .taxonomy-section.level-3 > h4 {
+      margin: 14px 0 10px;
+      padding: 4px 9px;
+      border-left: 3px solid #7aaeb4;
+      border-radius: 0 5px 5px 0;
+      background: #f3f7f8;
+      font-size: 0.92rem;
+      color: var(--ink);
+      scroll-margin-top: 24px;
+    }
+
+    .taxonomy-section small {
+      margin-left: 6px;
+      color: var(--muted);
+      font-size: 0.78em;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .paper-card {
+      scroll-margin-top: 24px;
+      min-width: 0;
+      padding: clamp(18px, 3vw, 28px);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: 0 2px 0 rgba(23, 32, 42, 0.03);
+      content-visibility: auto;
+      contain-intrinsic-block-size: 540px;
+      transition: box-shadow 160ms ease, border-color 160ms ease, transform 160ms ease;
+    }
+
+    .paper-card:hover {
+      border-color: rgba(0, 109, 119, 0.42);
+      box-shadow: var(--shadow);
+      transform: translateY(-1px);
+    }
+
+    .paper-card--spotlight {
+      border-color: rgba(225, 164, 0, 0.72);
+      background: linear-gradient(90deg, #fff7df 0, #fffaf0 42px, var(--surface) 180px);
+      box-shadow: inset 5px 0 0 #e0a400, 0 3px 14px rgba(188, 133, 0, 0.12);
+    }
+
+    .paper-card--spotlight:hover {
+      border-color: #d9a300;
+      box-shadow: inset 5px 0 0 #d9a300, 0 16px 38px rgba(188, 133, 0, 0.18);
+    }
+
+    .paper-card[hidden] {
+      display: none;
+    }
+
+    .paper-card__header {
+      display: block;
+    }
+
+    .paper-card__header > * {
+      min-width: 0;
+    }
+
+    .paper-kicker {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      min-width: 0;
+    }
+
+    .paper-kicker__trail {
+      display: flex;
+      flex: 1 1 auto;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .paper-kicker__actions {
+      display: flex;
+      flex: 0 0 auto;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .paper-meta {
+      display: inline-flex;
+      align-items: center;
+      margin: 0;
+      color: var(--accent-strong);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .meta-separator {
+      color: #8a98a8;
+      font-weight: 800;
+    }
+
+    .taxonomy-breadcrumb {
+      display: flex;
+      flex: 1 1 auto;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .taxonomy-crumb {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 750;
+      line-height: 1.25;
+    }
+
+    .taxonomy-current {
+      display: inline-flex;
+      max-width: 100%;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: #d7f0ee;
+      color: var(--accent-strong);
+      font-size: 0.82rem;
+      font-weight: 800;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .paper-card h3 {
+      margin: 0;
+      font-size: clamp(1.16rem, 2vw, 1.55rem);
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .authors,
+    .institutions {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .meta-label {
+      margin-right: 6px;
+      color: var(--accent-strong);
+      font-weight: 800;
+    }
+
+    .badge-stack,
+    .paper-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .badge-stack {
+      margin-top: 10px;
+    }
+
+    .badge-stack--inline {
+      flex: 1 1 auto;
+      margin-top: 0;
+      min-width: 0;
+    }
+
+    .badge {
+      display: inline-flex;
+      max-width: 100%;
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .badge.primary {
+      background: #d7f0ee;
+      color: #004f57;
+    }
+
+    .badge.secondary {
+      background: #f0f2f5;
+      color: var(--muted);
+    }
+
+    .badge.spotlight {
+      border: 1px solid #e0a400;
+      background: #fff0bd;
+      color: #6f4a00;
+      box-shadow: 0 1px 0 rgba(188, 133, 0, 0.16);
+    }
+
+    .badge.oral {
+      background: #e6e0ff;
+      color: #3f2d7a;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .analysis-field {
+      display: grid;
+      grid-template-columns: 5.4em minmax(0, 1fr);
+      gap: 14px;
+      align-items: baseline;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      min-width: 0;
+    }
+
+    .analysis-field h4 {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--accent-strong);
+    }
+
+    .analysis-field p,
+    details p {
+      margin: 0;
+      color: var(--ink);
+    }
+
+    .paper-card__footer {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .paper-links {
+      margin: 14px 0 0;
+    }
+
+    .paper-links--top {
+      margin: 0;
+    }
+
+    .paper-links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f7f9fb;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .paper-links a:hover {
+      border-color: rgba(0, 109, 119, 0.46);
+      background: #e3edf0;
+    }
+
+    details {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .empty-state {
+      padding: 24px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      background: var(--surface);
+    }
+
+    .load-more-wrap {
+      max-width: 1180px;
+      margin-top: 24px;
+      text-align: center;
+    }
+
+    .load-more {
+      min-height: 44px;
+      padding: 9px 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--accent-strong);
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .load-more:hover {
+      border-color: rgba(0, 109, 119, 0.46);
+      background: #eaf5f6;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        display: block;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+        padding: 20px 16px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .mobile-filter-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .filter-panel[data-mobile-expanded="false"] {
+        display: none;
+      }
+
+      .filter-panel[data-mobile-expanded="true"] {
+        display: block;
+      }
+
+      #main {
+        padding: 24px 16px 42px;
+      }
+
+      .analysis-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .paper-kicker {
+        display: block;
+      }
+
+      .paper-kicker__actions {
+        justify-content: flex-start;
+        margin: 8px 0 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主内容</a>
+  <div class="layout">
+    <aside class="sidebar" aria-label="论文筛选">
+      <p class="site-title">ICML Deep Learning</p>
+      <p class="site-subtitle">覆盖 2024-2026 年 ICML 官方 Deep Learning 方向论文。</p>
+      <button class="mobile-filter-toggle" id="mobile-filter-toggle" type="button" aria-controls="filter-panel" aria-expanded="false">筛选与目录</button>
+      <div class="filter-panel" id="filter-panel" data-mobile-expanded="false">
+        <label class="sr-only" for="search">搜索论文</label>
+        <input class="search-box" id="search" name="search" type="search" placeholder="搜索标题 / 作者 / 方法…" autocomplete="off">
+        <p class="stats">共 <strong id="total-count">4779</strong> 篇论文</p>
+        <p class="result-status" id="result-status" aria-live="polite">显示 4779 篇论文</p>
+        <section class="filter-section" aria-labelledby="year-heading">
+          <h2 id="year-heading">年份</h2>
+          <div class="chip-group"><button type="button" class="filter-chip" data-filter-type="year" data-filter-value="2024" aria-pressed="false" translate="no">2024</button>
+<button type="button" class="filter-chip" data-filter-type="year" data-filter-value="2025" aria-pressed="false" translate="no">2025</button>
+<button type="button" class="filter-chip" data-filter-type="year" data-filter-value="2026" aria-pressed="false" translate="no">2026</button></div>
+        </section>
+        <nav class="filter-section taxonomy-nav" aria-labelledby="taxonomy-heading">
+          <h2 id="taxonomy-heading">三级目录浏览</h2>
+          <a class="taxonomy-link level-0" href="#main" data-filter-type="taxonomy" data-filter-value="" aria-pressed="false"><span class="taxonomy-name">全部</span><span class="taxonomy-count" data-taxonomy-count="">0</span></a>
+<div class="taxonomy-node level-1" data-taxonomy-node="深度学习">
+<div class="taxonomy-row level-1">
+<button type="button" class="taxonomy-toggle level-1" data-toggle-value="深度学习" aria-expanded="true" aria-label="折叠深度学习"><span class="taxonomy-toggle-icon" aria-hidden="true">›</span></button>
+<a class="taxonomy-link level-1" href="#topic-u-c9fd9db3" data-filter-type="taxonomy" data-filter-value="深度学习" aria-pressed="false"><span class="taxonomy-name">深度学习</span><span class="taxonomy-count" data-taxonomy-count="深度学习">0</span></a>
+</div>
+<div class="taxonomy-children level-2" data-taxonomy-children="深度学习">
+<div class="taxonomy-node level-2" data-taxonomy-node="深度学习|大语言模型 (LLM)">
+<div class="taxonomy-row level-2">
+<button type="button" class="taxonomy-toggle level-2" data-toggle-value="深度学习|大语言模型 (LLM)" aria-expanded="false" aria-label="展开大语言模型 (LLM)"><span class="taxonomy-toggle-icon" aria-hidden="true">›</span></button>
+<a class="taxonomy-link level-2" href="#topic-llm-8421b72b" data-filter-type="taxonomy" data-filter-value="深度学习|大语言模型 (LLM)" aria-pressed="false"><span class="taxonomy-name">大语言模型 (LLM)</span><span class="taxonomy-count" data-taxonomy-count="深度学习|大语言模型 (LLM)">0</span></a>
+</div>
+<div class="taxonomy-children level-3" data-taxonomy-children="深度学习|大语言模型 (LLM)" hidden>
+<a class="taxonomy-link level-3" href="#topic-llm-cot-a686ddc3" data-filter-type="taxonomy" data-filter-value="深度学习|大语言模型 (LLM)|推理与思维链 (CoT)" aria-pressed="false"><span class="taxonomy-name">推理与思维链 (CoT)</span><span class="taxonomy-count" data-taxonomy-count="深度学习|大语言模型 (LLM)|推理与思维链 (CoT)">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-llm-5d6ecb31" data-filter-type="taxonomy" data-filter-value="深度学习|大语言模型 (LLM)|效率/压缩/量化/推理加速" aria-pressed="false"><span class="taxonomy-name">效率/压缩/量化/推理加速</span><span class="taxonomy-count" data-taxonomy-count="深度学习|大语言模型 (LLM)|效率/压缩/量化/推理加速">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-llm-agent-94f1bf25" data-filter-type="taxonomy" data-filter-value="深度学习|大语言模型 (LLM)|Agent 与工具使用" aria-pressed="false"><span class="taxonomy-name">Agent 与工具使用</span><span class="taxonomy-count" data-taxonomy-count="深度学习|大语言模型 (LLM)|Agent 与工具使用">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-llm-rlhf-dpo-99603dbf" data-filter-type="taxonomy" data-filter-value="深度学习|大语言模型 (LLM)|RLHF / DPO / 偏好对齐" aria-pressed="false"><span class="taxonomy-name">RLHF / DPO / 偏好对齐</span><span class="taxonomy-count" data-taxonomy-count="深度学习|大语言模型 (LLM)|RLHF / DPO / 偏好对齐">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-llm-scaling-afee1590" data-filter-type="taxonomy" data-filter-value="深度学习|大语言模型 (LLM)|预训练与 Scaling" aria-pressed="false"><span class="taxonomy-name">预训练与 Scaling</span><span class="taxonomy-count" data-taxonomy-count="深度学习|大语言模型 (LLM)|预训练与 Scaling">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-llm-rag-65cc345d" data-filter-type="taxonomy" data-filter-value="深度学习|大语言模型 (LLM)|长上下文与检索增强 (RAG)" aria-pressed="false"><span class="taxonomy-name">长上下文与检索增强 (RAG)</span><span class="taxonomy-count" data-taxonomy-count="深度学习|大语言模型 (LLM)|长上下文与检索增强 (RAG)">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-llm-953d3a55" data-filter-type="taxonomy" data-filter-value="深度学习|大语言模型 (LLM)|幻觉/事实性/可信" aria-pressed="false"><span class="taxonomy-name">幻觉/事实性/可信</span><span class="taxonomy-count" data-taxonomy-count="深度学习|大语言模型 (LLM)|幻觉/事实性/可信">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-llm-llm-4be2eb3b" data-filter-type="taxonomy" data-filter-value="深度学习|大语言模型 (LLM)|代码 LLM" aria-pressed="false"><span class="taxonomy-name">代码 LLM</span><span class="taxonomy-count" data-taxonomy-count="深度学习|大语言模型 (LLM)|代码 LLM">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-llm-llm-3dbde5e8" data-filter-type="taxonomy" data-filter-value="深度学习|大语言模型 (LLM)|评测与基准 (LLM)" aria-pressed="false"><span class="taxonomy-name">评测与基准 (LLM)</span><span class="taxonomy-count" data-taxonomy-count="深度学习|大语言模型 (LLM)|评测与基准 (LLM)">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-llm-sft-4bf0a1d8" data-filter-type="taxonomy" data-filter-value="深度学习|大语言模型 (LLM)|指令微调 (SFT) 与数据" aria-pressed="false"><span class="taxonomy-name">指令微调 (SFT) 与数据</span><span class="taxonomy-count" data-taxonomy-count="深度学习|大语言模型 (LLM)|指令微调 (SFT) 与数据">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-llm-840efe73" data-filter-type="taxonomy" data-filter-value="深度学习|大语言模型 (LLM)|其他" aria-pressed="false"><span class="taxonomy-name">其他</span><span class="taxonomy-count" data-taxonomy-count="深度学习|大语言模型 (LLM)|其他">0</span></a>
+</div>
+</div>
+<div class="taxonomy-node level-2" data-taxonomy-node="深度学习|多模态/视觉-语言模型">
+<div class="taxonomy-row level-2">
+<button type="button" class="taxonomy-toggle level-2" data-toggle-value="深度学习|多模态/视觉-语言模型" aria-expanded="false" aria-label="展开多模态/视觉-语言模型"><span class="taxonomy-toggle-icon" aria-hidden="true">›</span></button>
+<a class="taxonomy-link level-2" href="#topic-u-c4c3b31c" data-filter-type="taxonomy" data-filter-value="深度学习|多模态/视觉-语言模型" aria-pressed="false"><span class="taxonomy-name">多模态/视觉-语言模型</span><span class="taxonomy-count" data-taxonomy-count="深度学习|多模态/视觉-语言模型">0</span></a>
+</div>
+<div class="taxonomy-children level-3" data-taxonomy-children="深度学习|多模态/视觉-语言模型" hidden>
+<a class="taxonomy-link level-3" href="#topic-vlm-mllm-be7adea8" data-filter-type="taxonomy" data-filter-value="深度学习|多模态/视觉-语言模型|VLM/MLLM 通用模型" aria-pressed="false"><span class="taxonomy-name">VLM/MLLM 通用模型</span><span class="taxonomy-count" data-taxonomy-count="深度学习|多模态/视觉-语言模型|VLM/MLLM 通用模型">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-270e72ee" data-filter-type="taxonomy" data-filter-value="深度学习|多模态/视觉-语言模型|视觉指令调优 / 训练方法" aria-pressed="false"><span class="taxonomy-name">视觉指令调优 / 训练方法</span><span class="taxonomy-count" data-taxonomy-count="深度学习|多模态/视觉-语言模型|视觉指令调优 / 训练方法">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-3d-47877ba4" data-filter-type="taxonomy" data-filter-value="深度学习|多模态/视觉-语言模型|3D / 具身多模态" aria-pressed="false"><span class="taxonomy-name">3D / 具身多模态</span><span class="taxonomy-count" data-taxonomy-count="深度学习|多模态/视觉-语言模型|3D / 具身多模态">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-vlm-250ec982" data-filter-type="taxonomy" data-filter-value="深度学习|多模态/视觉-语言模型|视频理解 (VLM)" aria-pressed="false"><span class="taxonomy-name">视频理解 (VLM)</span><span class="taxonomy-count" data-taxonomy-count="深度学习|多模态/视觉-语言模型|视频理解 (VLM)">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-vlm-9ac44643" data-filter-type="taxonomy" data-filter-value="深度学习|多模态/视觉-语言模型|评测与基准 (VLM)" aria-pressed="false"><span class="taxonomy-name">评测与基准 (VLM)</span><span class="taxonomy-count" data-taxonomy-count="深度学习|多模态/视觉-语言模型|评测与基准 (VLM)">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-66c275c9" data-filter-type="taxonomy" data-filter-value="深度学习|多模态/视觉-语言模型|跨模态检索/生成/字幕" aria-pressed="false"><span class="taxonomy-name">跨模态检索/生成/字幕</span><span class="taxonomy-count" data-taxonomy-count="深度学习|多模态/视觉-语言模型|跨模态检索/生成/字幕">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-ocr-gui-8042e495" data-filter-type="taxonomy" data-filter-value="深度学习|多模态/视觉-语言模型|文档/OCR/图表/GUI" aria-pressed="false"><span class="taxonomy-name">文档/OCR/图表/GUI</span><span class="taxonomy-count" data-taxonomy-count="深度学习|多模态/视觉-语言模型|文档/OCR/图表/GUI">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-c8fea881" data-filter-type="taxonomy" data-filter-value="深度学习|多模态/视觉-语言模型|音频/语音多模态" aria-pressed="false"><span class="taxonomy-name">音频/语音多模态</span><span class="taxonomy-count" data-taxonomy-count="深度学习|多模态/视觉-语言模型|音频/语音多模态">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-363b8363" data-filter-type="taxonomy" data-filter-value="深度学习|多模态/视觉-语言模型|其他" aria-pressed="false"><span class="taxonomy-name">其他</span><span class="taxonomy-count" data-taxonomy-count="深度学习|多模态/视觉-语言模型|其他">0</span></a>
+</div>
+</div>
+<div class="taxonomy-node level-2" data-taxonomy-node="深度学习|生成模型与扩散">
+<div class="taxonomy-row level-2">
+<button type="button" class="taxonomy-toggle level-2" data-toggle-value="深度学习|生成模型与扩散" aria-expanded="false" aria-label="展开生成模型与扩散"><span class="taxonomy-toggle-icon" aria-hidden="true">›</span></button>
+<a class="taxonomy-link level-2" href="#topic-u-20da1465" data-filter-type="taxonomy" data-filter-value="深度学习|生成模型与扩散" aria-pressed="false"><span class="taxonomy-name">生成模型与扩散</span><span class="taxonomy-count" data-taxonomy-count="深度学习|生成模型与扩散">0</span></a>
+</div>
+<div class="taxonomy-children level-3" data-taxonomy-children="深度学习|生成模型与扩散" hidden>
+<a class="taxonomy-link level-3" href="#topic-u-751244fe" data-filter-type="taxonomy" data-filter-value="深度学习|生成模型与扩散|扩散理论与采样" aria-pressed="false"><span class="taxonomy-name">扩散理论与采样</span><span class="taxonomy-count" data-taxonomy-count="深度学习|生成模型与扩散|扩散理论与采样">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-12ccafb9" data-filter-type="taxonomy" data-filter-value="深度学习|生成模型与扩散|图像编辑与可控生成" aria-pressed="false"><span class="taxonomy-name">图像编辑与可控生成</span><span class="taxonomy-count" data-taxonomy-count="深度学习|生成模型与扩散|图像编辑与可控生成">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-67cf8949" data-filter-type="taxonomy" data-filter-value="深度学习|生成模型与扩散|自回归 / 流匹配生成" aria-pressed="false"><span class="taxonomy-name">自回归 / 流匹配生成</span><span class="taxonomy-count" data-taxonomy-count="深度学习|生成模型与扩散|自回归 / 流匹配生成">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-t2v-d30d91be" data-filter-type="taxonomy" data-filter-value="深度学习|生成模型与扩散|文本到视频 (T2V)" aria-pressed="false"><span class="taxonomy-name">文本到视频 (T2V)</span><span class="taxonomy-count" data-taxonomy-count="深度学习|生成模型与扩散|文本到视频 (T2V)">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-c2b8e8a2" data-filter-type="taxonomy" data-filter-value="深度学习|生成模型与扩散|分子/科学生成" aria-pressed="false"><span class="taxonomy-name">分子/科学生成</span><span class="taxonomy-count" data-taxonomy-count="深度学习|生成模型与扩散|分子/科学生成">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-3d-4d-49c1e18e" data-filter-type="taxonomy" data-filter-value="深度学习|生成模型与扩散|3D / 4D 生成" aria-pressed="false"><span class="taxonomy-name">3D / 4D 生成</span><span class="taxonomy-count" data-taxonomy-count="深度学习|生成模型与扩散|3D / 4D 生成">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-t2i-43428968" data-filter-type="taxonomy" data-filter-value="深度学习|生成模型与扩散|文本到图像 (T2I)" aria-pressed="false"><span class="taxonomy-name">文本到图像 (T2I)</span><span class="taxonomy-count" data-taxonomy-count="深度学习|生成模型与扩散|文本到图像 (T2I)">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-4ad784ee" data-filter-type="taxonomy" data-filter-value="深度学习|生成模型与扩散|音频/语音/音乐生成" aria-pressed="false"><span class="taxonomy-name">音频/语音/音乐生成</span><span class="taxonomy-count" data-taxonomy-count="深度学习|生成模型与扩散|音频/语音/音乐生成">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-a5a24bc1" data-filter-type="taxonomy" data-filter-value="深度学习|生成模型与扩散|其他" aria-pressed="false"><span class="taxonomy-name">其他</span><span class="taxonomy-count" data-taxonomy-count="深度学习|生成模型与扩散|其他">0</span></a>
+</div>
+</div>
+<div class="taxonomy-node level-2" data-taxonomy-node="深度学习|训练算法与微调">
+<div class="taxonomy-row level-2">
+<button type="button" class="taxonomy-toggle level-2" data-toggle-value="深度学习|训练算法与微调" aria-expanded="false" aria-label="展开训练算法与微调"><span class="taxonomy-toggle-icon" aria-hidden="true">›</span></button>
+<a class="taxonomy-link level-2" href="#topic-u-490e7c35" data-filter-type="taxonomy" data-filter-value="深度学习|训练算法与微调" aria-pressed="false"><span class="taxonomy-name">训练算法与微调</span><span class="taxonomy-count" data-taxonomy-count="深度学习|训练算法与微调">0</span></a>
+</div>
+<div class="taxonomy-children level-3" data-taxonomy-children="深度学习|训练算法与微调" hidden>
+<a class="taxonomy-link level-3" href="#topic-peft-lora-adapter-153c639a" data-filter-type="taxonomy" data-filter-value="深度学习|训练算法与微调|PEFT / LoRA / Adapter" aria-pressed="false"><span class="taxonomy-name">PEFT / LoRA / Adapter</span><span class="taxonomy-count" data-taxonomy-count="深度学习|训练算法与微调|PEFT / LoRA / Adapter">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-9c0fea8b" data-filter-type="taxonomy" data-filter-value="深度学习|训练算法与微调|正则化与稳定训练" aria-pressed="false"><span class="taxonomy-name">正则化与稳定训练</span><span class="taxonomy-count" data-taxonomy-count="深度学习|训练算法与微调|正则化与稳定训练">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-ba4406fb" data-filter-type="taxonomy" data-filter-value="深度学习|训练算法与微调|知识蒸馏" aria-pressed="false"><span class="taxonomy-name">知识蒸馏</span><span class="taxonomy-count" data-taxonomy-count="深度学习|训练算法与微调|知识蒸馏">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-bf48d7eb" data-filter-type="taxonomy" data-filter-value="深度学习|训练算法与微调|数据选择/课程学习" aria-pressed="false"><span class="taxonomy-name">数据选择/课程学习</span><span class="taxonomy-count" data-taxonomy-count="深度学习|训练算法与微调|数据选择/课程学习">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-d4cef152" data-filter-type="taxonomy" data-filter-value="深度学习|训练算法与微调|持续/终身学习" aria-pressed="false"><span class="taxonomy-name">持续/终身学习</span><span class="taxonomy-count" data-taxonomy-count="深度学习|训练算法与微调|持续/终身学习">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-e0336fe5" data-filter-type="taxonomy" data-filter-value="深度学习|训练算法与微调|迁移/元/少样本" aria-pressed="false"><span class="taxonomy-name">迁移/元/少样本</span><span class="taxonomy-count" data-taxonomy-count="深度学习|训练算法与微调|迁移/元/少样本">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-91c02183" data-filter-type="taxonomy" data-filter-value="深度学习|训练算法与微调|优化器与学习率" aria-pressed="false"><span class="taxonomy-name">优化器与学习率</span><span class="taxonomy-count" data-taxonomy-count="深度学习|训练算法与微调|优化器与学习率">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-9636afce" data-filter-type="taxonomy" data-filter-value="深度学习|训练算法与微调|其他" aria-pressed="false"><span class="taxonomy-name">其他</span><span class="taxonomy-count" data-taxonomy-count="深度学习|训练算法与微调|其他">0</span></a>
+</div>
+</div>
+<div class="taxonomy-node level-2" data-taxonomy-node="深度学习|模型架构 (Transformer/MoE/SSM)">
+<div class="taxonomy-row level-2">
+<button type="button" class="taxonomy-toggle level-2" data-toggle-value="深度学习|模型架构 (Transformer/MoE/SSM)" aria-expanded="false" aria-label="展开模型架构 (Transformer/MoE/SSM)"><span class="taxonomy-toggle-icon" aria-hidden="true">›</span></button>
+<a class="taxonomy-link level-2" href="#topic-transformer-moe-ssm-b20d9ab7" data-filter-type="taxonomy" data-filter-value="深度学习|模型架构 (Transformer/MoE/SSM)" aria-pressed="false"><span class="taxonomy-name">模型架构 (Transformer/MoE/SSM)</span><span class="taxonomy-count" data-taxonomy-count="深度学习|模型架构 (Transformer/MoE/SSM)">0</span></a>
+</div>
+<div class="taxonomy-children level-3" data-taxonomy-children="深度学习|模型架构 (Transformer/MoE/SSM)" hidden>
+<a class="taxonomy-link level-3" href="#topic-transformer-moe-ssm-989f856c" data-filter-type="taxonomy" data-filter-value="深度学习|模型架构 (Transformer/MoE/SSM)|注意力机制" aria-pressed="false"><span class="taxonomy-name">注意力机制</span><span class="taxonomy-count" data-taxonomy-count="深度学习|模型架构 (Transformer/MoE/SSM)|注意力机制">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-transformer-moe-ssm-moe-662c5dc8" data-filter-type="taxonomy" data-filter-value="深度学习|模型架构 (Transformer/MoE/SSM)|MoE / 稀疏专家" aria-pressed="false"><span class="taxonomy-name">MoE / 稀疏专家</span><span class="taxonomy-count" data-taxonomy-count="深度学习|模型架构 (Transformer/MoE/SSM)|MoE / 稀疏专家">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-transformer-moe-ssm-transformer-32ff728b" data-filter-type="taxonomy" data-filter-value="深度学习|模型架构 (Transformer/MoE/SSM)|Transformer 变体" aria-pressed="false"><span class="taxonomy-name">Transformer 变体</span><span class="taxonomy-count" data-taxonomy-count="深度学习|模型架构 (Transformer/MoE/SSM)|Transformer 变体">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-transformer-moe-ssm-ssm-mamba-b8ed8a5b" data-filter-type="taxonomy" data-filter-value="深度学习|模型架构 (Transformer/MoE/SSM)|状态空间 (SSM/Mamba)" aria-pressed="false"><span class="taxonomy-name">状态空间 (SSM/Mamba)</span><span class="taxonomy-count" data-taxonomy-count="深度学习|模型架构 (Transformer/MoE/SSM)|状态空间 (SSM/Mamba)">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-transformer-moe-ssm-93849d83" data-filter-type="taxonomy" data-filter-value="深度学习|模型架构 (Transformer/MoE/SSM)|卷积/混合架构" aria-pressed="false"><span class="taxonomy-name">卷积/混合架构</span><span class="taxonomy-count" data-taxonomy-count="深度学习|模型架构 (Transformer/MoE/SSM)|卷积/混合架构">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-transformer-moe-ssm-d0061040" data-filter-type="taxonomy" data-filter-value="深度学习|模型架构 (Transformer/MoE/SSM)|新型递归/线性架构" aria-pressed="false"><span class="taxonomy-name">新型递归/线性架构</span><span class="taxonomy-count" data-taxonomy-count="深度学习|模型架构 (Transformer/MoE/SSM)|新型递归/线性架构">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-transformer-moe-ssm-60ac0446" data-filter-type="taxonomy" data-filter-value="深度学习|模型架构 (Transformer/MoE/SSM)|其他" aria-pressed="false"><span class="taxonomy-name">其他</span><span class="taxonomy-count" data-taxonomy-count="深度学习|模型架构 (Transformer/MoE/SSM)|其他">0</span></a>
+</div>
+</div>
+<div class="taxonomy-node level-2" data-taxonomy-node="深度学习|图神经网络">
+<div class="taxonomy-row level-2">
+<button type="button" class="taxonomy-toggle level-2" data-toggle-value="深度学习|图神经网络" aria-expanded="false" aria-label="展开图神经网络"><span class="taxonomy-toggle-icon" aria-hidden="true">›</span></button>
+<a class="taxonomy-link level-2" href="#topic-u-58330251" data-filter-type="taxonomy" data-filter-value="深度学习|图神经网络" aria-pressed="false"><span class="taxonomy-name">图神经网络</span><span class="taxonomy-count" data-taxonomy-count="深度学习|图神经网络">0</span></a>
+</div>
+<div class="taxonomy-children level-3" data-taxonomy-children="深度学习|图神经网络" hidden>
+<a class="taxonomy-link level-3" href="#topic-u-e038efc3" data-filter-type="taxonomy" data-filter-value="深度学习|图神经网络|节点/图分类" aria-pressed="false"><span class="taxonomy-name">节点/图分类</span><span class="taxonomy-count" data-taxonomy-count="深度学习|图神经网络|节点/图分类">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-gnn-9154c3f1" data-filter-type="taxonomy" data-filter-value="深度学习|图神经网络|等变 / 几何 GNN" aria-pressed="false"><span class="taxonomy-name">等变 / 几何 GNN</span><span class="taxonomy-count" data-taxonomy-count="深度学习|图神经网络|等变 / 几何 GNN">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-81e3e1b5" data-filter-type="taxonomy" data-filter-value="深度学习|图神经网络|动态图 / 时序图" aria-pressed="false"><span class="taxonomy-name">动态图 / 时序图</span><span class="taxonomy-count" data-taxonomy-count="深度学习|图神经网络|动态图 / 时序图">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-gnn-3757b6ed" data-filter-type="taxonomy" data-filter-value="深度学习|图神经网络|GNN 理论与表达力" aria-pressed="false"><span class="taxonomy-name">GNN 理论与表达力</span><span class="taxonomy-count" data-taxonomy-count="深度学习|图神经网络|GNN 理论与表达力">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-transformer-5aceef60" data-filter-type="taxonomy" data-filter-value="深度学习|图神经网络|图 Transformer" aria-pressed="false"><span class="taxonomy-name">图 Transformer</span><span class="taxonomy-count" data-taxonomy-count="深度学习|图神经网络|图 Transformer">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-a0810fb6" data-filter-type="taxonomy" data-filter-value="深度学习|图神经网络|异质图 / 知识图谱" aria-pressed="false"><span class="taxonomy-name">异质图 / 知识图谱</span><span class="taxonomy-count" data-taxonomy-count="深度学习|图神经网络|异质图 / 知识图谱">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-71b5d443" data-filter-type="taxonomy" data-filter-value="深度学习|图神经网络|图生成 / 分子" aria-pressed="false"><span class="taxonomy-name">图生成 / 分子</span><span class="taxonomy-count" data-taxonomy-count="深度学习|图神经网络|图生成 / 分子">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-6c76e83a" data-filter-type="taxonomy" data-filter-value="深度学习|图神经网络|其他" aria-pressed="false"><span class="taxonomy-name">其他</span><span class="taxonomy-count" data-taxonomy-count="深度学习|图神经网络|其他">0</span></a>
+</div>
+</div>
+<div class="taxonomy-node level-2" data-taxonomy-node="深度学习|自监督与表征学习">
+<div class="taxonomy-row level-2">
+<button type="button" class="taxonomy-toggle level-2" data-toggle-value="深度学习|自监督与表征学习" aria-expanded="false" aria-label="展开自监督与表征学习"><span class="taxonomy-toggle-icon" aria-hidden="true">›</span></button>
+<a class="taxonomy-link level-2" href="#topic-u-81036e76" data-filter-type="taxonomy" data-filter-value="深度学习|自监督与表征学习" aria-pressed="false"><span class="taxonomy-name">自监督与表征学习</span><span class="taxonomy-count" data-taxonomy-count="深度学习|自监督与表征学习">0</span></a>
+</div>
+<div class="taxonomy-children level-3" data-taxonomy-children="深度学习|自监督与表征学习" hidden>
+<a class="taxonomy-link level-3" href="#topic-u-fcf91a04" data-filter-type="taxonomy" data-filter-value="深度学习|自监督与表征学习|对比学习" aria-pressed="false"><span class="taxonomy-name">对比学习</span><span class="taxonomy-count" data-taxonomy-count="深度学习|自监督与表征学习|对比学习">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-1be66cb1" data-filter-type="taxonomy" data-filter-value="深度学习|自监督与表征学习|表征分析与探针" aria-pressed="false"><span class="taxonomy-name">表征分析与探针</span><span class="taxonomy-count" data-taxonomy-count="深度学习|自监督与表征学习|表征分析与探针">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-4885b78d" data-filter-type="taxonomy" data-filter-value="深度学习|自监督与表征学习|掩码建模" aria-pressed="false"><span class="taxonomy-name">掩码建模</span><span class="taxonomy-count" data-taxonomy-count="深度学习|自监督与表征学习|掩码建模">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-7d7e0a9c" data-filter-type="taxonomy" data-filter-value="深度学习|自监督与表征学习|音频/视频自监督" aria-pressed="false"><span class="taxonomy-name">音频/视频自监督</span><span class="taxonomy-count" data-taxonomy-count="深度学习|自监督与表征学习|音频/视频自监督">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-a1f41ce0" data-filter-type="taxonomy" data-filter-value="深度学习|自监督与表征学习|跨模态预训练" aria-pressed="false"><span class="taxonomy-name">跨模态预训练</span><span class="taxonomy-count" data-taxonomy-count="深度学习|自监督与表征学习|跨模态预训练">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-db5c2880" data-filter-type="taxonomy" data-filter-value="深度学习|自监督与表征学习|其他" aria-pressed="false"><span class="taxonomy-name">其他</span><span class="taxonomy-count" data-taxonomy-count="深度学习|自监督与表征学习|其他">0</span></a>
+</div>
+</div>
+<div class="taxonomy-node level-2" data-taxonomy-node="深度学习|时序与序列模型">
+<div class="taxonomy-row level-2">
+<button type="button" class="taxonomy-toggle level-2" data-toggle-value="深度学习|时序与序列模型" aria-expanded="false" aria-label="展开时序与序列模型"><span class="taxonomy-toggle-icon" aria-hidden="true">›</span></button>
+<a class="taxonomy-link level-2" href="#topic-u-90c352a9" data-filter-type="taxonomy" data-filter-value="深度学习|时序与序列模型" aria-pressed="false"><span class="taxonomy-name">时序与序列模型</span><span class="taxonomy-count" data-taxonomy-count="深度学习|时序与序列模型">0</span></a>
+</div>
+<div class="taxonomy-children level-3" data-taxonomy-children="深度学习|时序与序列模型" hidden>
+<a class="taxonomy-link level-3" href="#topic-u-3f0f0ecd" data-filter-type="taxonomy" data-filter-value="深度学习|时序与序列模型|时间序列预测" aria-pressed="false"><span class="taxonomy-name">时间序列预测</span><span class="taxonomy-count" data-taxonomy-count="深度学习|时序与序列模型|时间序列预测">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-f939be84" data-filter-type="taxonomy" data-filter-value="深度学习|时序与序列模型|序列建模" aria-pressed="false"><span class="taxonomy-name">序列建模</span><span class="taxonomy-count" data-taxonomy-count="深度学习|时序与序列模型|序列建模">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-bb085d5e" data-filter-type="taxonomy" data-filter-value="深度学习|时序与序列模型|自回归建模" aria-pressed="false"><span class="taxonomy-name">自回归建模</span><span class="taxonomy-count" data-taxonomy-count="深度学习|时序与序列模型|自回归建模">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-c56ffbe8" data-filter-type="taxonomy" data-filter-value="深度学习|时序与序列模型|其他" aria-pressed="false"><span class="taxonomy-name">其他</span><span class="taxonomy-count" data-taxonomy-count="深度学习|时序与序列模型|其他">0</span></a>
+</div>
+</div>
+<div class="taxonomy-node level-2" data-taxonomy-node="深度学习|鲁棒性与对抗">
+<div class="taxonomy-row level-2">
+<button type="button" class="taxonomy-toggle level-2" data-toggle-value="深度学习|鲁棒性与对抗" aria-expanded="false" aria-label="展开鲁棒性与对抗"><span class="taxonomy-toggle-icon" aria-hidden="true">›</span></button>
+<a class="taxonomy-link level-2" href="#topic-u-24be9a6f" data-filter-type="taxonomy" data-filter-value="深度学习|鲁棒性与对抗" aria-pressed="false"><span class="taxonomy-name">鲁棒性与对抗</span><span class="taxonomy-count" data-taxonomy-count="深度学习|鲁棒性与对抗">0</span></a>
+</div>
+<div class="taxonomy-children level-3" data-taxonomy-children="深度学习|鲁棒性与对抗" hidden>
+<a class="taxonomy-link level-3" href="#topic-u-e89a3b86" data-filter-type="taxonomy" data-filter-value="深度学习|鲁棒性与对抗|对抗鲁棒性" aria-pressed="false"><span class="taxonomy-name">对抗鲁棒性</span><span class="taxonomy-count" data-taxonomy-count="深度学习|鲁棒性与对抗|对抗鲁棒性">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-8b37c5df" data-filter-type="taxonomy" data-filter-value="深度学习|鲁棒性与对抗|分布外泛化" aria-pressed="false"><span class="taxonomy-name">分布外泛化</span><span class="taxonomy-count" data-taxonomy-count="深度学习|鲁棒性与对抗|分布外泛化">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-60cadacb" data-filter-type="taxonomy" data-filter-value="深度学习|鲁棒性与对抗|安全性评测" aria-pressed="false"><span class="taxonomy-name">安全性评测</span><span class="taxonomy-count" data-taxonomy-count="深度学习|鲁棒性与对抗|安全性评测">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-f67a964e" data-filter-type="taxonomy" data-filter-value="深度学习|鲁棒性与对抗|其他" aria-pressed="false"><span class="taxonomy-name">其他</span><span class="taxonomy-count" data-taxonomy-count="深度学习|鲁棒性与对抗|其他">0</span></a>
+</div>
+</div>
+<div class="taxonomy-node level-2" data-taxonomy-node="深度学习|基础模型">
+<div class="taxonomy-row level-2">
+<button type="button" class="taxonomy-toggle level-2" data-toggle-value="深度学习|基础模型" aria-expanded="false" aria-label="展开基础模型"><span class="taxonomy-toggle-icon" aria-hidden="true">›</span></button>
+<a class="taxonomy-link level-2" href="#topic-u-47ae77b7" data-filter-type="taxonomy" data-filter-value="深度学习|基础模型" aria-pressed="false"><span class="taxonomy-name">基础模型</span><span class="taxonomy-count" data-taxonomy-count="深度学习|基础模型">0</span></a>
+</div>
+<div class="taxonomy-children level-3" data-taxonomy-children="深度学习|基础模型" hidden>
+<a class="taxonomy-link level-3" href="#topic-scaling-2e0f0dff" data-filter-type="taxonomy" data-filter-value="深度学习|基础模型|预训练与 Scaling" aria-pressed="false"><span class="taxonomy-name">预训练与 Scaling</span><span class="taxonomy-count" data-taxonomy-count="深度学习|基础模型|预训练与 Scaling">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-8d3c2613" data-filter-type="taxonomy" data-filter-value="深度学习|基础模型|基础模型评测" aria-pressed="false"><span class="taxonomy-name">基础模型评测</span><span class="taxonomy-count" data-taxonomy-count="深度学习|基础模型|基础模型评测">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-175d3812" data-filter-type="taxonomy" data-filter-value="深度学习|基础模型|数据与治理" aria-pressed="false"><span class="taxonomy-name">数据与治理</span><span class="taxonomy-count" data-taxonomy-count="深度学习|基础模型|数据与治理">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-3589b05c" data-filter-type="taxonomy" data-filter-value="深度学习|基础模型|其他" aria-pressed="false"><span class="taxonomy-name">其他</span><span class="taxonomy-count" data-taxonomy-count="深度学习|基础模型|其他">0</span></a>
+</div>
+</div>
+<div class="taxonomy-node level-2" data-taxonomy-node="深度学习|深度学习理论">
+<div class="taxonomy-row level-2">
+<button type="button" class="taxonomy-toggle level-2" data-toggle-value="深度学习|深度学习理论" aria-expanded="false" aria-label="展开深度学习理论"><span class="taxonomy-toggle-icon" aria-hidden="true">›</span></button>
+<a class="taxonomy-link level-2" href="#topic-u-606d9ba6" data-filter-type="taxonomy" data-filter-value="深度学习|深度学习理论" aria-pressed="false"><span class="taxonomy-name">深度学习理论</span><span class="taxonomy-count" data-taxonomy-count="深度学习|深度学习理论">0</span></a>
+</div>
+<div class="taxonomy-children level-3" data-taxonomy-children="深度学习|深度学习理论" hidden>
+<a class="taxonomy-link level-3" href="#topic-u-2f0cee7c" data-filter-type="taxonomy" data-filter-value="深度学习|深度学习理论|泛化理论" aria-pressed="false"><span class="taxonomy-name">泛化理论</span><span class="taxonomy-count" data-taxonomy-count="深度学习|深度学习理论|泛化理论">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-8d599623" data-filter-type="taxonomy" data-filter-value="深度学习|深度学习理论|优化理论" aria-pressed="false"><span class="taxonomy-name">优化理论</span><span class="taxonomy-count" data-taxonomy-count="深度学习|深度学习理论|优化理论">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-2f3a4c8e" data-filter-type="taxonomy" data-filter-value="深度学习|深度学习理论|表示理论" aria-pressed="false"><span class="taxonomy-name">表示理论</span><span class="taxonomy-count" data-taxonomy-count="深度学习|深度学习理论|表示理论">0</span></a>
+<a class="taxonomy-link level-3" href="#topic-u-5c0cddbd" data-filter-type="taxonomy" data-filter-value="深度学习|深度学习理论|其他" aria-pressed="false"><span class="taxonomy-name">其他</span><span class="taxonomy-count" data-taxonomy-count="深度学习|深度学习理论|其他">0</span></a>
+</div>
+</div>
+<div class="taxonomy-node level-2" data-taxonomy-node="深度学习|其他">
+<div class="taxonomy-row level-2">
+<button type="button" class="taxonomy-toggle level-2" data-toggle-value="深度学习|其他" aria-expanded="false" aria-label="展开其他"><span class="taxonomy-toggle-icon" aria-hidden="true">›</span></button>
+<a class="taxonomy-link level-2" href="#topic-u-a2049f42" data-filter-type="taxonomy" data-filter-value="深度学习|其他" aria-pressed="false"><span class="taxonomy-name">其他</span><span class="taxonomy-count" data-taxonomy-count="深度学习|其他">0</span></a>
+</div>
+<div class="taxonomy-children level-3" data-taxonomy-children="深度学习|其他" hidden>
+<a class="taxonomy-link level-3" href="#topic-u-f0601a43" data-filter-type="taxonomy" data-filter-value="深度学习|其他|待人工细分" aria-pressed="false"><span class="taxonomy-name">待人工细分</span><span class="taxonomy-count" data-taxonomy-count="深度学习|其他|待人工细分">0</span></a>
+</div>
+</div>
+</div>
+</div>
+        </nav>
+      </div>
+    </aside>
+    <main id="main" tabindex="-1">
+      <header class="page-header">
+        <h1>ICML Deep Learning 论文导读 2024-2026</h1>
+        <p>按深度学习主题、子问题和技术点组织 ICML 论文索引，年份作为筛选维度保留。</p>
+        <div class="spotlight-controls" aria-label="论文范围筛选">
+          <button class="spotlight-filter" type="button" data-filter-type="spotlight" data-filter-value="all" aria-pressed="true">全部 <span id="all-count">0</span> 篇</button>
+          <button class="spotlight-filter spotlight-filter--only" type="button" data-filter-type="spotlight" data-filter-value="spotlight" aria-pressed="false">⭐ Spotlight <span id="spotlight-count">0</span> 篇</button>
+        </div>
+      </header>
+      <div id="paper-list" aria-label="论文列表">
+
+        <section class="taxonomy-section level-1" id="topic-u-c9fd9db3" data-taxonomy-section="深度学习" hidden>
+          <h2>深度学习 <small data-section-count="深度学习">0</small></h2>
+
+
+          <section class="taxonomy-section level-2" id="topic-llm-8421b72b" data-taxonomy-section="深度学习|大语言模型 (LLM)" hidden>
+            <h3>大语言模型 (LLM) <small data-section-count="深度学习|大语言模型 (LLM)">0</small></h3>
+
+
+            <section class="taxonomy-section level-3" id="topic-llm-cot-a686ddc3" data-taxonomy-section="深度学习|大语言模型 (LLM)|推理与思维链 (CoT)" hidden>
+              <h4>推理与思维链 (CoT) <small data-section-count="深度学习|大语言模型 (LLM)|推理与思维链 (CoT)">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-llm-5d6ecb31" data-taxonomy-section="深度学习|大语言模型 (LLM)|效率/压缩/量化/推理加速" hidden>
+              <h4>效率/压缩/量化/推理加速 <small data-section-count="深度学习|大语言模型 (LLM)|效率/压缩/量化/推理加速">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-llm-agent-94f1bf25" data-taxonomy-section="深度学习|大语言模型 (LLM)|Agent 与工具使用" hidden>
+              <h4>Agent 与工具使用 <small data-section-count="深度学习|大语言模型 (LLM)|Agent 与工具使用">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-llm-rlhf-dpo-99603dbf" data-taxonomy-section="深度学习|大语言模型 (LLM)|RLHF / DPO / 偏好对齐" hidden>
+              <h4>RLHF / DPO / 偏好对齐 <small data-section-count="深度学习|大语言模型 (LLM)|RLHF / DPO / 偏好对齐">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-llm-scaling-afee1590" data-taxonomy-section="深度学习|大语言模型 (LLM)|预训练与 Scaling" hidden>
+              <h4>预训练与 Scaling <small data-section-count="深度学习|大语言模型 (LLM)|预训练与 Scaling">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-llm-rag-65cc345d" data-taxonomy-section="深度学习|大语言模型 (LLM)|长上下文与检索增强 (RAG)" hidden>
+              <h4>长上下文与检索增强 (RAG) <small data-section-count="深度学习|大语言模型 (LLM)|长上下文与检索增强 (RAG)">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-llm-953d3a55" data-taxonomy-section="深度学习|大语言模型 (LLM)|幻觉/事实性/可信" hidden>
+              <h4>幻觉/事实性/可信 <small data-section-count="深度学习|大语言模型 (LLM)|幻觉/事实性/可信">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-llm-llm-4be2eb3b" data-taxonomy-section="深度学习|大语言模型 (LLM)|代码 LLM" hidden>
+              <h4>代码 LLM <small data-section-count="深度学习|大语言模型 (LLM)|代码 LLM">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-llm-llm-3dbde5e8" data-taxonomy-section="深度学习|大语言模型 (LLM)|评测与基准 (LLM)" hidden>
+              <h4>评测与基准 (LLM) <small data-section-count="深度学习|大语言模型 (LLM)|评测与基准 (LLM)">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-llm-sft-4bf0a1d8" data-taxonomy-section="深度学习|大语言模型 (LLM)|指令微调 (SFT) 与数据" hidden>
+              <h4>指令微调 (SFT) 与数据 <small data-section-count="深度学习|大语言模型 (LLM)|指令微调 (SFT) 与数据">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-llm-840efe73" data-taxonomy-section="深度学习|大语言模型 (LLM)|其他" hidden>
+              <h4>其他 <small data-section-count="深度学习|大语言模型 (LLM)|其他">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+          </section>
+
+          <section class="taxonomy-section level-2" id="topic-u-c4c3b31c" data-taxonomy-section="深度学习|多模态/视觉-语言模型" hidden>
+            <h3>多模态/视觉-语言模型 <small data-section-count="深度学习|多模态/视觉-语言模型">0</small></h3>
+
+
+            <section class="taxonomy-section level-3" id="topic-vlm-mllm-be7adea8" data-taxonomy-section="深度学习|多模态/视觉-语言模型|VLM/MLLM 通用模型" hidden>
+              <h4>VLM/MLLM 通用模型 <small data-section-count="深度学习|多模态/视觉-语言模型|VLM/MLLM 通用模型">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-270e72ee" data-taxonomy-section="深度学习|多模态/视觉-语言模型|视觉指令调优 / 训练方法" hidden>
+              <h4>视觉指令调优 / 训练方法 <small data-section-count="深度学习|多模态/视觉-语言模型|视觉指令调优 / 训练方法">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-3d-47877ba4" data-taxonomy-section="深度学习|多模态/视觉-语言模型|3D / 具身多模态" hidden>
+              <h4>3D / 具身多模态 <small data-section-count="深度学习|多模态/视觉-语言模型|3D / 具身多模态">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-vlm-250ec982" data-taxonomy-section="深度学习|多模态/视觉-语言模型|视频理解 (VLM)" hidden>
+              <h4>视频理解 (VLM) <small data-section-count="深度学习|多模态/视觉-语言模型|视频理解 (VLM)">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-vlm-9ac44643" data-taxonomy-section="深度学习|多模态/视觉-语言模型|评测与基准 (VLM)" hidden>
+              <h4>评测与基准 (VLM) <small data-section-count="深度学习|多模态/视觉-语言模型|评测与基准 (VLM)">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-66c275c9" data-taxonomy-section="深度学习|多模态/视觉-语言模型|跨模态检索/生成/字幕" hidden>
+              <h4>跨模态检索/生成/字幕 <small data-section-count="深度学习|多模态/视觉-语言模型|跨模态检索/生成/字幕">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-ocr-gui-8042e495" data-taxonomy-section="深度学习|多模态/视觉-语言模型|文档/OCR/图表/GUI" hidden>
+              <h4>文档/OCR/图表/GUI <small data-section-count="深度学习|多模态/视觉-语言模型|文档/OCR/图表/GUI">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-c8fea881" data-taxonomy-section="深度学习|多模态/视觉-语言模型|音频/语音多模态" hidden>
+              <h4>音频/语音多模态 <small data-section-count="深度学习|多模态/视觉-语言模型|音频/语音多模态">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-363b8363" data-taxonomy-section="深度学习|多模态/视觉-语言模型|其他" hidden>
+              <h4>其他 <small data-section-count="深度学习|多模态/视觉-语言模型|其他">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+          </section>
+
+          <section class="taxonomy-section level-2" id="topic-u-20da1465" data-taxonomy-section="深度学习|生成模型与扩散" hidden>
+            <h3>生成模型与扩散 <small data-section-count="深度学习|生成模型与扩散">0</small></h3>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-751244fe" data-taxonomy-section="深度学习|生成模型与扩散|扩散理论与采样" hidden>
+              <h4>扩散理论与采样 <small data-section-count="深度学习|生成模型与扩散|扩散理论与采样">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-12ccafb9" data-taxonomy-section="深度学习|生成模型与扩散|图像编辑与可控生成" hidden>
+              <h4>图像编辑与可控生成 <small data-section-count="深度学习|生成模型与扩散|图像编辑与可控生成">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-67cf8949" data-taxonomy-section="深度学习|生成模型与扩散|自回归 / 流匹配生成" hidden>
+              <h4>自回归 / 流匹配生成 <small data-section-count="深度学习|生成模型与扩散|自回归 / 流匹配生成">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-t2v-d30d91be" data-taxonomy-section="深度学习|生成模型与扩散|文本到视频 (T2V)" hidden>
+              <h4>文本到视频 (T2V) <small data-section-count="深度学习|生成模型与扩散|文本到视频 (T2V)">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-c2b8e8a2" data-taxonomy-section="深度学习|生成模型与扩散|分子/科学生成" hidden>
+              <h4>分子/科学生成 <small data-section-count="深度学习|生成模型与扩散|分子/科学生成">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-3d-4d-49c1e18e" data-taxonomy-section="深度学习|生成模型与扩散|3D / 4D 生成" hidden>
+              <h4>3D / 4D 生成 <small data-section-count="深度学习|生成模型与扩散|3D / 4D 生成">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-t2i-43428968" data-taxonomy-section="深度学习|生成模型与扩散|文本到图像 (T2I)" hidden>
+              <h4>文本到图像 (T2I) <small data-section-count="深度学习|生成模型与扩散|文本到图像 (T2I)">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-4ad784ee" data-taxonomy-section="深度学习|生成模型与扩散|音频/语音/音乐生成" hidden>
+              <h4>音频/语音/音乐生成 <small data-section-count="深度学习|生成模型与扩散|音频/语音/音乐生成">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-a5a24bc1" data-taxonomy-section="深度学习|生成模型与扩散|其他" hidden>
+              <h4>其他 <small data-section-count="深度学习|生成模型与扩散|其他">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+          </section>
+
+          <section class="taxonomy-section level-2" id="topic-u-490e7c35" data-taxonomy-section="深度学习|训练算法与微调" hidden>
+            <h3>训练算法与微调 <small data-section-count="深度学习|训练算法与微调">0</small></h3>
+
+
+            <section class="taxonomy-section level-3" id="topic-peft-lora-adapter-153c639a" data-taxonomy-section="深度学习|训练算法与微调|PEFT / LoRA / Adapter" hidden>
+              <h4>PEFT / LoRA / Adapter <small data-section-count="深度学习|训练算法与微调|PEFT / LoRA / Adapter">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-9c0fea8b" data-taxonomy-section="深度学习|训练算法与微调|正则化与稳定训练" hidden>
+              <h4>正则化与稳定训练 <small data-section-count="深度学习|训练算法与微调|正则化与稳定训练">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-ba4406fb" data-taxonomy-section="深度学习|训练算法与微调|知识蒸馏" hidden>
+              <h4>知识蒸馏 <small data-section-count="深度学习|训练算法与微调|知识蒸馏">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-bf48d7eb" data-taxonomy-section="深度学习|训练算法与微调|数据选择/课程学习" hidden>
+              <h4>数据选择/课程学习 <small data-section-count="深度学习|训练算法与微调|数据选择/课程学习">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-d4cef152" data-taxonomy-section="深度学习|训练算法与微调|持续/终身学习" hidden>
+              <h4>持续/终身学习 <small data-section-count="深度学习|训练算法与微调|持续/终身学习">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-e0336fe5" data-taxonomy-section="深度学习|训练算法与微调|迁移/元/少样本" hidden>
+              <h4>迁移/元/少样本 <small data-section-count="深度学习|训练算法与微调|迁移/元/少样本">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-91c02183" data-taxonomy-section="深度学习|训练算法与微调|优化器与学习率" hidden>
+              <h4>优化器与学习率 <small data-section-count="深度学习|训练算法与微调|优化器与学习率">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-9636afce" data-taxonomy-section="深度学习|训练算法与微调|其他" hidden>
+              <h4>其他 <small data-section-count="深度学习|训练算法与微调|其他">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+          </section>
+
+          <section class="taxonomy-section level-2" id="topic-transformer-moe-ssm-b20d9ab7" data-taxonomy-section="深度学习|模型架构 (Transformer/MoE/SSM)" hidden>
+            <h3>模型架构 (Transformer/MoE/SSM) <small data-section-count="深度学习|模型架构 (Transformer/MoE/SSM)">0</small></h3>
+
+
+            <section class="taxonomy-section level-3" id="topic-transformer-moe-ssm-989f856c" data-taxonomy-section="深度学习|模型架构 (Transformer/MoE/SSM)|注意力机制" hidden>
+              <h4>注意力机制 <small data-section-count="深度学习|模型架构 (Transformer/MoE/SSM)|注意力机制">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-transformer-moe-ssm-moe-662c5dc8" data-taxonomy-section="深度学习|模型架构 (Transformer/MoE/SSM)|MoE / 稀疏专家" hidden>
+              <h4>MoE / 稀疏专家 <small data-section-count="深度学习|模型架构 (Transformer/MoE/SSM)|MoE / 稀疏专家">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-transformer-moe-ssm-transformer-32ff728b" data-taxonomy-section="深度学习|模型架构 (Transformer/MoE/SSM)|Transformer 变体" hidden>
+              <h4>Transformer 变体 <small data-section-count="深度学习|模型架构 (Transformer/MoE/SSM)|Transformer 变体">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-transformer-moe-ssm-ssm-mamba-b8ed8a5b" data-taxonomy-section="深度学习|模型架构 (Transformer/MoE/SSM)|状态空间 (SSM/Mamba)" hidden>
+              <h4>状态空间 (SSM/Mamba) <small data-section-count="深度学习|模型架构 (Transformer/MoE/SSM)|状态空间 (SSM/Mamba)">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-transformer-moe-ssm-93849d83" data-taxonomy-section="深度学习|模型架构 (Transformer/MoE/SSM)|卷积/混合架构" hidden>
+              <h4>卷积/混合架构 <small data-section-count="深度学习|模型架构 (Transformer/MoE/SSM)|卷积/混合架构">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-transformer-moe-ssm-d0061040" data-taxonomy-section="深度学习|模型架构 (Transformer/MoE/SSM)|新型递归/线性架构" hidden>
+              <h4>新型递归/线性架构 <small data-section-count="深度学习|模型架构 (Transformer/MoE/SSM)|新型递归/线性架构">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-transformer-moe-ssm-60ac0446" data-taxonomy-section="深度学习|模型架构 (Transformer/MoE/SSM)|其他" hidden>
+              <h4>其他 <small data-section-count="深度学习|模型架构 (Transformer/MoE/SSM)|其他">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+          </section>
+
+          <section class="taxonomy-section level-2" id="topic-u-58330251" data-taxonomy-section="深度学习|图神经网络" hidden>
+            <h3>图神经网络 <small data-section-count="深度学习|图神经网络">0</small></h3>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-e038efc3" data-taxonomy-section="深度学习|图神经网络|节点/图分类" hidden>
+              <h4>节点/图分类 <small data-section-count="深度学习|图神经网络|节点/图分类">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-gnn-9154c3f1" data-taxonomy-section="深度学习|图神经网络|等变 / 几何 GNN" hidden>
+              <h4>等变 / 几何 GNN <small data-section-count="深度学习|图神经网络|等变 / 几何 GNN">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-81e3e1b5" data-taxonomy-section="深度学习|图神经网络|动态图 / 时序图" hidden>
+              <h4>动态图 / 时序图 <small data-section-count="深度学习|图神经网络|动态图 / 时序图">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-gnn-3757b6ed" data-taxonomy-section="深度学习|图神经网络|GNN 理论与表达力" hidden>
+              <h4>GNN 理论与表达力 <small data-section-count="深度学习|图神经网络|GNN 理论与表达力">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-transformer-5aceef60" data-taxonomy-section="深度学习|图神经网络|图 Transformer" hidden>
+              <h4>图 Transformer <small data-section-count="深度学习|图神经网络|图 Transformer">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-a0810fb6" data-taxonomy-section="深度学习|图神经网络|异质图 / 知识图谱" hidden>
+              <h4>异质图 / 知识图谱 <small data-section-count="深度学习|图神经网络|异质图 / 知识图谱">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-71b5d443" data-taxonomy-section="深度学习|图神经网络|图生成 / 分子" hidden>
+              <h4>图生成 / 分子 <small data-section-count="深度学习|图神经网络|图生成 / 分子">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-6c76e83a" data-taxonomy-section="深度学习|图神经网络|其他" hidden>
+              <h4>其他 <small data-section-count="深度学习|图神经网络|其他">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+          </section>
+
+          <section class="taxonomy-section level-2" id="topic-u-81036e76" data-taxonomy-section="深度学习|自监督与表征学习" hidden>
+            <h3>自监督与表征学习 <small data-section-count="深度学习|自监督与表征学习">0</small></h3>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-fcf91a04" data-taxonomy-section="深度学习|自监督与表征学习|对比学习" hidden>
+              <h4>对比学习 <small data-section-count="深度学习|自监督与表征学习|对比学习">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-1be66cb1" data-taxonomy-section="深度学习|自监督与表征学习|表征分析与探针" hidden>
+              <h4>表征分析与探针 <small data-section-count="深度学习|自监督与表征学习|表征分析与探针">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-4885b78d" data-taxonomy-section="深度学习|自监督与表征学习|掩码建模" hidden>
+              <h4>掩码建模 <small data-section-count="深度学习|自监督与表征学习|掩码建模">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-7d7e0a9c" data-taxonomy-section="深度学习|自监督与表征学习|音频/视频自监督" hidden>
+              <h4>音频/视频自监督 <small data-section-count="深度学习|自监督与表征学习|音频/视频自监督">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-a1f41ce0" data-taxonomy-section="深度学习|自监督与表征学习|跨模态预训练" hidden>
+              <h4>跨模态预训练 <small data-section-count="深度学习|自监督与表征学习|跨模态预训练">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-db5c2880" data-taxonomy-section="深度学习|自监督与表征学习|其他" hidden>
+              <h4>其他 <small data-section-count="深度学习|自监督与表征学习|其他">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+          </section>
+
+          <section class="taxonomy-section level-2" id="topic-u-90c352a9" data-taxonomy-section="深度学习|时序与序列模型" hidden>
+            <h3>时序与序列模型 <small data-section-count="深度学习|时序与序列模型">0</small></h3>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-3f0f0ecd" data-taxonomy-section="深度学习|时序与序列模型|时间序列预测" hidden>
+              <h4>时间序列预测 <small data-section-count="深度学习|时序与序列模型|时间序列预测">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-f939be84" data-taxonomy-section="深度学习|时序与序列模型|序列建模" hidden>
+              <h4>序列建模 <small data-section-count="深度学习|时序与序列模型|序列建模">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-bb085d5e" data-taxonomy-section="深度学习|时序与序列模型|自回归建模" hidden>
+              <h4>自回归建模 <small data-section-count="深度学习|时序与序列模型|自回归建模">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-c56ffbe8" data-taxonomy-section="深度学习|时序与序列模型|其他" hidden>
+              <h4>其他 <small data-section-count="深度学习|时序与序列模型|其他">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+          </section>
+
+          <section class="taxonomy-section level-2" id="topic-u-24be9a6f" data-taxonomy-section="深度学习|鲁棒性与对抗" hidden>
+            <h3>鲁棒性与对抗 <small data-section-count="深度学习|鲁棒性与对抗">0</small></h3>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-e89a3b86" data-taxonomy-section="深度学习|鲁棒性与对抗|对抗鲁棒性" hidden>
+              <h4>对抗鲁棒性 <small data-section-count="深度学习|鲁棒性与对抗|对抗鲁棒性">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-8b37c5df" data-taxonomy-section="深度学习|鲁棒性与对抗|分布外泛化" hidden>
+              <h4>分布外泛化 <small data-section-count="深度学习|鲁棒性与对抗|分布外泛化">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-60cadacb" data-taxonomy-section="深度学习|鲁棒性与对抗|安全性评测" hidden>
+              <h4>安全性评测 <small data-section-count="深度学习|鲁棒性与对抗|安全性评测">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-f67a964e" data-taxonomy-section="深度学习|鲁棒性与对抗|其他" hidden>
+              <h4>其他 <small data-section-count="深度学习|鲁棒性与对抗|其他">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+          </section>
+
+          <section class="taxonomy-section level-2" id="topic-u-47ae77b7" data-taxonomy-section="深度学习|基础模型" hidden>
+            <h3>基础模型 <small data-section-count="深度学习|基础模型">0</small></h3>
+
+
+            <section class="taxonomy-section level-3" id="topic-scaling-2e0f0dff" data-taxonomy-section="深度学习|基础模型|预训练与 Scaling" hidden>
+              <h4>预训练与 Scaling <small data-section-count="深度学习|基础模型|预训练与 Scaling">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-8d3c2613" data-taxonomy-section="深度学习|基础模型|基础模型评测" hidden>
+              <h4>基础模型评测 <small data-section-count="深度学习|基础模型|基础模型评测">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-175d3812" data-taxonomy-section="深度学习|基础模型|数据与治理" hidden>
+              <h4>数据与治理 <small data-section-count="深度学习|基础模型|数据与治理">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-3589b05c" data-taxonomy-section="深度学习|基础模型|其他" hidden>
+              <h4>其他 <small data-section-count="深度学习|基础模型|其他">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+          </section>
+
+          <section class="taxonomy-section level-2" id="topic-u-606d9ba6" data-taxonomy-section="深度学习|深度学习理论" hidden>
+            <h3>深度学习理论 <small data-section-count="深度学习|深度学习理论">0</small></h3>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-2f0cee7c" data-taxonomy-section="深度学习|深度学习理论|泛化理论" hidden>
+              <h4>泛化理论 <small data-section-count="深度学习|深度学习理论|泛化理论">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-8d599623" data-taxonomy-section="深度学习|深度学习理论|优化理论" hidden>
+              <h4>优化理论 <small data-section-count="深度学习|深度学习理论|优化理论">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-2f3a4c8e" data-taxonomy-section="深度学习|深度学习理论|表示理论" hidden>
+              <h4>表示理论 <small data-section-count="深度学习|深度学习理论|表示理论">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-5c0cddbd" data-taxonomy-section="深度学习|深度学习理论|其他" hidden>
+              <h4>其他 <small data-section-count="深度学习|深度学习理论|其他">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+          </section>
+
+          <section class="taxonomy-section level-2" id="topic-u-a2049f42" data-taxonomy-section="深度学习|其他" hidden>
+            <h3>其他 <small data-section-count="深度学习|其他">0</small></h3>
+
+
+            <section class="taxonomy-section level-3" id="topic-u-f0601a43" data-taxonomy-section="深度学习|其他|待人工细分" hidden>
+              <h4>待人工细分 <small data-section-count="深度学习|其他|待人工细分">0</small></h4>
+              <div class="paper-list"></div>
+            </section>
+
+          </section>
+        </section>
+      </div>
+      <div class="load-more-wrap" id="load-more-wrap" hidden>
+        <button class="load-more" id="load-more" type="button">加载更多论文</button>
+      </div>
+      <p class="empty-state" id="empty-state" hidden>没有匹配的论文。</p>
+    </main>
+  </div>
+  <script>
+    const paperDataUrl = "papers.json";
+    const INITIAL_RENDER_LIMIT = 120;
+    const RENDER_INCREMENT = 120;
+    const taxonomyFilterOptions = ["深度学习", "深度学习|大语言模型 (LLM)", "深度学习|大语言模型 (LLM)|推理与思维链 (CoT)", "深度学习|大语言模型 (LLM)|效率/压缩/量化/推理加速", "深度学习|大语言模型 (LLM)|Agent 与工具使用", "深度学习|大语言模型 (LLM)|RLHF / DPO / 偏好对齐", "深度学习|大语言模型 (LLM)|预训练与 Scaling", "深度学习|大语言模型 (LLM)|长上下文与检索增强 (RAG)", "深度学习|大语言模型 (LLM)|幻觉/事实性/可信", "深度学习|大语言模型 (LLM)|代码 LLM", "深度学习|大语言模型 (LLM)|评测与基准 (LLM)", "深度学习|大语言模型 (LLM)|指令微调 (SFT) 与数据", "深度学习|大语言模型 (LLM)|其他", "深度学习|多模态/视觉-语言模型", "深度学习|多模态/视觉-语言模型|VLM/MLLM 通用模型", "深度学习|多模态/视觉-语言模型|视觉指令调优 / 训练方法", "深度学习|多模态/视觉-语言模型|3D / 具身多模态", "深度学习|多模态/视觉-语言模型|视频理解 (VLM)", "深度学习|多模态/视觉-语言模型|评测与基准 (VLM)", "深度学习|多模态/视觉-语言模型|跨模态检索/生成/字幕", "深度学习|多模态/视觉-语言模型|文档/OCR/图表/GUI", "深度学习|多模态/视觉-语言模型|音频/语音多模态", "深度学习|多模态/视觉-语言模型|其他", "深度学习|生成模型与扩散", "深度学习|生成模型与扩散|扩散理论与采样", "深度学习|生成模型与扩散|图像编辑与可控生成", "深度学习|生成模型与扩散|自回归 / 流匹配生成", "深度学习|生成模型与扩散|文本到视频 (T2V)", "深度学习|生成模型与扩散|分子/科学生成", "深度学习|生成模型与扩散|3D / 4D 生成", "深度学习|生成模型与扩散|文本到图像 (T2I)", "深度学习|生成模型与扩散|音频/语音/音乐生成", "深度学习|生成模型与扩散|其他", "深度学习|训练算法与微调", "深度学习|训练算法与微调|PEFT / LoRA / Adapter", "深度学习|训练算法与微调|正则化与稳定训练", "深度学习|训练算法与微调|知识蒸馏", "深度学习|训练算法与微调|数据选择/课程学习", "深度学习|训练算法与微调|持续/终身学习", "深度学习|训练算法与微调|迁移/元/少样本", "深度学习|训练算法与微调|优化器与学习率", "深度学习|训练算法与微调|其他", "深度学习|模型架构 (Transformer/MoE/SSM)", "深度学习|模型架构 (Transformer/MoE/SSM)|注意力机制", "深度学习|模型架构 (Transformer/MoE/SSM)|MoE / 稀疏专家", "深度学习|模型架构 (Transformer/MoE/SSM)|Transformer 变体", "深度学习|模型架构 (Transformer/MoE/SSM)|状态空间 (SSM/Mamba)", "深度学习|模型架构 (Transformer/MoE/SSM)|卷积/混合架构", "深度学习|模型架构 (Transformer/MoE/SSM)|新型递归/线性架构", "深度学习|模型架构 (Transformer/MoE/SSM)|其他", "深度学习|图神经网络", "深度学习|图神经网络|节点/图分类", "深度学习|图神经网络|等变 / 几何 GNN", "深度学习|图神经网络|动态图 / 时序图", "深度学习|图神经网络|GNN 理论与表达力", "深度学习|图神经网络|图 Transformer", "深度学习|图神经网络|异质图 / 知识图谱", "深度学习|图神经网络|图生成 / 分子", "深度学习|图神经网络|其他", "深度学习|自监督与表征学习", "深度学习|自监督与表征学习|对比学习", "深度学习|自监督与表征学习|表征分析与探针", "深度学习|自监督与表征学习|掩码建模", "深度学习|自监督与表征学习|音频/视频自监督", "深度学习|自监督与表征学习|跨模态预训练", "深度学习|自监督与表征学习|其他", "深度学习|时序与序列模型", "深度学习|时序与序列模型|时间序列预测", "深度学习|时序与序列模型|序列建模", "深度学习|时序与序列模型|自回归建模", "深度学习|时序与序列模型|其他", "深度学习|鲁棒性与对抗", "深度学习|鲁棒性与对抗|对抗鲁棒性", "深度学习|鲁棒性与对抗|分布外泛化", "深度学习|鲁棒性与对抗|安全性评测", "深度学习|鲁棒性与对抗|其他", "深度学习|基础模型", "深度学习|基础模型|预训练与 Scaling", "深度学习|基础模型|基础模型评测", "深度学习|基础模型|数据与治理", "深度学习|基础模型|其他", "深度学习|深度学习理论", "深度学习|深度学习理论|泛化理论", "深度学习|深度学习理论|优化理论", "深度学习|深度学习理论|表示理论", "深度学习|深度学习理论|其他", "深度学习|其他", "深度学习|其他|待人工细分"];
+    const validTaxonomyPaths = new Set(["深度学习|其他|待人工细分", "深度学习|图神经网络|GNN 理论与表达力", "深度学习|图神经网络|其他", "深度学习|图神经网络|动态图 / 时序图", "深度学习|图神经网络|图 Transformer", "深度学习|图神经网络|图生成 / 分子", "深度学习|图神经网络|异质图 / 知识图谱", "深度学习|图神经网络|等变 / 几何 GNN", "深度学习|图神经网络|节点/图分类", "深度学习|基础模型|其他", "深度学习|基础模型|基础模型评测", "深度学习|基础模型|数据与治理", "深度学习|基础模型|预训练与 Scaling", "深度学习|多模态/视觉-语言模型|3D / 具身多模态", "深度学习|多模态/视觉-语言模型|VLM/MLLM 通用模型", "深度学习|多模态/视觉-语言模型|其他", "深度学习|多模态/视觉-语言模型|文档/OCR/图表/GUI", "深度学习|多模态/视觉-语言模型|视觉指令调优 / 训练方法", "深度学习|多模态/视觉-语言模型|视频理解 (VLM)", "深度学习|多模态/视觉-语言模型|评测与基准 (VLM)", "深度学习|多模态/视觉-语言模型|跨模态检索/生成/字幕", "深度学习|多模态/视觉-语言模型|音频/语音多模态", "深度学习|大语言模型 (LLM)|Agent 与工具使用", "深度学习|大语言模型 (LLM)|RLHF / DPO / 偏好对齐", "深度学习|大语言模型 (LLM)|代码 LLM", "深度学习|大语言模型 (LLM)|其他", "深度学习|大语言模型 (LLM)|幻觉/事实性/可信", "深度学习|大语言模型 (LLM)|指令微调 (SFT) 与数据", "深度学习|大语言模型 (LLM)|推理与思维链 (CoT)", "深度学习|大语言模型 (LLM)|效率/压缩/量化/推理加速", "深度学习|大语言模型 (LLM)|评测与基准 (LLM)", "深度学习|大语言模型 (LLM)|长上下文与检索增强 (RAG)", "深度学习|大语言模型 (LLM)|预训练与 Scaling", "深度学习|时序与序列模型|其他", "深度学习|时序与序列模型|序列建模", "深度学习|时序与序列模型|时间序列预测", "深度学习|时序与序列模型|自回归建模", "深度学习|模型架构 (Transformer/MoE/SSM)|MoE / 稀疏专家", "深度学习|模型架构 (Transformer/MoE/SSM)|Transformer 变体", "深度学习|模型架构 (Transformer/MoE/SSM)|其他", "深度学习|模型架构 (Transformer/MoE/SSM)|卷积/混合架构", "深度学习|模型架构 (Transformer/MoE/SSM)|新型递归/线性架构", "深度学习|模型架构 (Transformer/MoE/SSM)|注意力机制", "深度学习|模型架构 (Transformer/MoE/SSM)|状态空间 (SSM/Mamba)", "深度学习|深度学习理论|优化理论", "深度学习|深度学习理论|其他", "深度学习|深度学习理论|泛化理论", "深度学习|深度学习理论|表示理论", "深度学习|生成模型与扩散|3D / 4D 生成", "深度学习|生成模型与扩散|其他", "深度学习|生成模型与扩散|分子/科学生成", "深度学习|生成模型与扩散|图像编辑与可控生成", "深度学习|生成模型与扩散|扩散理论与采样", "深度学习|生成模型与扩散|文本到图像 (T2I)", "深度学习|生成模型与扩散|文本到视频 (T2V)", "深度学习|生成模型与扩散|自回归 / 流匹配生成", "深度学习|生成模型与扩散|音频/语音/音乐生成", "深度学习|自监督与表征学习|其他", "深度学习|自监督与表征学习|对比学习", "深度学习|自监督与表征学习|掩码建模", "深度学习|自监督与表征学习|表征分析与探针", "深度学习|自监督与表征学习|跨模态预训练", "深度学习|自监督与表征学习|音频/视频自监督", "深度学习|训练算法与微调|PEFT / LoRA / Adapter", "深度学习|训练算法与微调|优化器与学习率", "深度学习|训练算法与微调|其他", "深度学习|训练算法与微调|持续/终身学习", "深度学习|训练算法与微调|数据选择/课程学习", "深度学习|训练算法与微调|正则化与稳定训练", "深度学习|训练算法与微调|知识蒸馏", "深度学习|训练算法与微调|迁移/元/少样本", "深度学习|鲁棒性与对抗|其他", "深度学习|鲁棒性与对抗|分布外泛化", "深度学习|鲁棒性与对抗|安全性评测", "深度学习|鲁棒性与对抗|对抗鲁棒性"]);
+    const fieldLabels = {"motivation": "研究动机", "problem": "解决问题", "phenomenon": "现象分析", "method": "主要方法", "experiments": "数据与实验", "contribution": "主要贡献"};
+    const searchInput = document.querySelector("#search");
+    const resultStatus = document.querySelector("#result-status");
+    const emptyState = document.querySelector("#empty-state");
+    const loadMoreWrap = document.querySelector("#load-more-wrap");
+    const loadMoreButton = document.querySelector("#load-more");
+    const mobileFilterToggle = document.querySelector("#mobile-filter-toggle");
+    const filterPanel = document.querySelector("#filter-panel");
+    const totalCount = document.querySelector("#total-count");
+    const allCount = document.querySelector("#all-count");
+    const spotlightCount = document.querySelector("#spotlight-count");
+    const taxonomySections = new Map(Array.from(document.querySelectorAll("[data-taxonomy-section]")).map((section) => [section.dataset.taxonomySection, section]));
+    const filterControls = Array.from(document.querySelectorAll("[data-filter-type]"));
+    const taxonomyToggles = Array.from(document.querySelectorAll("[data-toggle-value]"));
+    const taxonomyChildren = new Map(Array.from(document.querySelectorAll("[data-taxonomy-children]")).map((node) => [node.dataset.taxonomyChildren, node]));
+    const validYears = new Set(filterControls.filter((control) => control.dataset.filterType === "year").map((control) => control.dataset.filterValue));
+    const validTopics = new Set(taxonomyFilterOptions);
+    let papers = [];
+    const state = {
+      q: "",
+      years: new Set(),
+      topic: "",
+      spotlightOnly: false,
+      renderLimit: INITIAL_RENDER_LIMIT,
+    };
+
+    function readUrlState() {
+      const params = new URLSearchParams(window.location.search);
+      state.q = params.get("q") || "";
+      state.years = new Set((params.get("years") || "").split(",").filter(Boolean).filter((value) => validYears.has(value)));
+      state.topic = params.get("topic") || "";
+      state.spotlightOnly = params.get("spotlight") === "1";
+      state.renderLimit = INITIAL_RENDER_LIMIT;
+      if (!validTopics.has(state.topic)) {
+        state.topic = "";
+      }
+      searchInput.value = state.q;
+    }
+
+    function setFilterPanelExpanded(expanded) {
+      if (!filterPanel || !mobileFilterToggle) return;
+      filterPanel.dataset.mobileExpanded = String(expanded);
+      mobileFilterToggle.setAttribute("aria-expanded", String(expanded));
+    }
+
+    function toggleFilterPanel() {
+      const expanded = filterPanel?.dataset.mobileExpanded === "true";
+      setFilterPanelExpanded(!expanded);
+    }
+
+    function resetRenderLimit() {
+      state.renderLimit = INITIAL_RENDER_LIMIT;
+    }
+
+    function escapeHtml(value) {
+      const node = document.createElement("span");
+      node.textContent = String(value ?? "");
+      return node.innerHTML;
+    }
+
+    function safeUrl(value) {
+      const url = String(value || "").trim();
+      return /^https?:\/\//i.test(url) ? url : "";
+    }
+
+    function listValue(value) {
+      if (Array.isArray(value)) return value.filter(Boolean).map((item) => String(item));
+      if (typeof value === "string" && value.trim()) return value.split(",").map((item) => item.trim()).filter(Boolean);
+      return [];
+    }
+
+    function paperCategories(paper) {
+      return [paper.primary_category, ...listValue(paper.secondary_categories)].filter(Boolean);
+    }
+
+    function paperTaxonomyPath(paper) {
+      return [
+        paper.taxonomy_level_1,
+        paper.taxonomy_level_2,
+        paper.taxonomy_level_3,
+      ].filter(Boolean).map((item) => String(item));
+    }
+
+    function taxonomyValue(path) {
+      return path.join("|");
+    }
+
+    function taxonomyPathMatches(path, selected) {
+      if (!selected) return true;
+      const selectedParts = selected.split("|").filter(Boolean);
+      if (path.length < selectedParts.length) return false;
+      return selectedParts.every((part, index) => path[index] === part);
+    }
+
+    function paperSearchText(paper) {
+      const categories = paperCategories(paper);
+      const taxonomy = paperTaxonomyPath(paper);
+      return [
+        paper.title,
+        listValue(paper.authors).join(" "),
+        listValue(paper.institutions).join(" "),
+        paper.venue,
+        paper.year,
+        paper.presentation_type,
+        paper.decision,
+        categories.join(" "),
+        taxonomy.join(" "),
+        listValue(paper.keywords).join(" "),
+        paper.relevance_reason,
+        ...Object.keys(fieldLabels).map((field) => paper[field] || ""),
+      ].join(" ").toLowerCase();
+    }
+
+    function renderLinks(paper) {
+      const seen = new Set();
+      return [
+        ["OpenReview", "openreview_url"],
+        ["ICML", "icml_url"],
+        ["论文", "paper_url"],
+        ["代码", "code_url"],
+        ["项目", "project_url"],
+        ["来源", "url"],
+      ].map(([label, key]) => {
+        const url = safeUrl(paper[key]);
+        if (!url || seen.has(url)) return "";
+        seen.add(url);
+        return `<li><a class="paper-link paper-link--${escapeHtml(key)}" href="${escapeHtml(url)}" rel="noreferrer" target="_blank">${label}</a></li>`;
+      }).join("");
+    }
+
+    function renderInstitutionList(paper) {
+      const institutions = listValue(paper.institutions);
+      if (!institutions.length) return "";
+      const visible = institutions.slice(0, 8).map((item) => escapeHtml(item)).join(" · ");
+      const suffix = institutions.length > 8 ? ` · 等 ${institutions.length} 个机构` : "";
+      return `<p class="institutions"><span class="meta-label">学校 / 团队</span>${visible}${suffix}</p>`;
+    }
+
+    function renderPresentationBadge(paper) {
+      const type = String(paper.presentation_type || "").trim();
+      if (paper.is_spotlight) return '<span class="badge spotlight">⭐ Spotlight</span>';
+      if (type.toLowerCase() === "oral") return '<span class="badge oral">Oral</span>';
+      return "";
+    }
+
+    function renderTaxonomyTrail(paper) {
+      const parts = paperTaxonomyPath(paper);
+      return parts.map((item, index) => {
+        const label = escapeHtml(item);
+        if (index === parts.length - 1) {
+          return `<span class="taxonomy-current">${label}</span>`;
+        }
+        return `<span class="taxonomy-crumb">${label}</span><span class="meta-separator" aria-hidden="true">/</span>`;
+      }).join("");
+    }
+
+    function renderAnalysis(paper) {
+      return [
+        `<section class="analysis-field"><h4>研究动机</h4><p>${escapeHtml(paper.motivation || "")}</p></section>`,
+        `<section class="analysis-field"><h4>解决问题</h4><p>${escapeHtml(paper.problem || "")}</p></section>`,
+        `<section class="analysis-field"><h4>现象分析</h4><p>${escapeHtml(paper.phenomenon || "")}</p></section>`,
+        `<section class="analysis-field"><h4>主要方法</h4><p>${escapeHtml(paper.method || "")}</p></section>`,
+        `<section class="analysis-field"><h4>数据与实验</h4><p>${escapeHtml(paper.experiments || "")}</p></section>`,
+        `<section class="analysis-field"><h4>主要贡献</h4><p>${escapeHtml(paper.contribution || "")}</p></section>`,
+      ].join("");
+    }
+
+    function renderDetails(paper) {
+      return [
+        ["摘要", "abstract"],
+      ].map(([label, key]) => {
+        const value = paper[key];
+        return value ? `<details><summary>${label}</summary><p>${escapeHtml(value)}</p></details>` : "";
+      }).join("");
+    }
+
+    function renderPaperCard(paper) {
+      const paperId = escapeHtml(paper.id);
+      const title = escapeHtml(paper.title);
+      const titleUrl = safeUrl(paper.openreview_url) || safeUrl(paper.paper_url) || safeUrl(paper.icml_url) || safeUrl(paper.project_url) || safeUrl(paper.url);
+      const titleHtml = titleUrl ? `<a href="${escapeHtml(titleUrl)}" rel="noreferrer" target="_blank">${title}</a>` : title;
+      const authors = escapeHtml(listValue(paper.authors).join(", "));
+      const institutions = renderInstitutionList(paper);
+      const venue = escapeHtml(paper.venue);
+      const year = escapeHtml(paper.year);
+      const categories = paperCategories(paper);
+      const category = escapeHtml(paper.primary_category);
+      const categoryValues = escapeHtml(categories.join("|"));
+      const taxonomyPath = escapeHtml(taxonomyValue(paperTaxonomyPath(paper)));
+      const taxonomyTrail = renderTaxonomyTrail(paper);
+      const presentationBadge = renderPresentationBadge(paper);
+      const linksHtml = renderLinks(paper);
+      const topActions = `${linksHtml ? `<ul class="paper-links paper-links--top">${linksHtml}</ul>` : ""}${presentationBadge}`;
+      const detailsHtml = renderDetails(paper);
+      const cardClasses = paper.is_spotlight ? "paper-card paper-card--spotlight" : "paper-card";
+      const searchText = escapeHtml(paperSearchText(paper));
+      return `
+        <article class="${cardClasses}" id="${paperId}" data-title="${title}" data-venue="${venue}" data-year="${year}" data-category="${category}" data-categories="${categoryValues}" data-taxonomy-path="${taxonomyPath}" data-search="${searchText}">
+          <div class="paper-card__header">
+            <div>
+              <div class="paper-kicker">
+                <div class="paper-kicker__trail">
+                  <p class="paper-meta"><span translate="no">${venue}</span> · <span translate="no">${year}</span></p>
+                  <span class="meta-separator" aria-hidden="true">/</span>
+                  <div class="taxonomy-breadcrumb">${taxonomyTrail}</div>
+                </div>
+                <div class="paper-kicker__actions">${topActions}</div>
+              </div>
+              <h3>${titleHtml}</h3>
+              <p class="authors">${authors}</p>
+              ${institutions}
+            </div>
+          </div>
+          <div class="analysis-grid">${renderAnalysis(paper)}</div>
+          ${detailsHtml ? '<div class="paper-card__footer"><div class="paper-details">' + detailsHtml + '</div></div>' : ""}
+        </article>`;
+    }
+
+    function writeUrlState() {
+      const params = new URLSearchParams();
+      if (state.q) params.set("q", state.q);
+      if (state.years.size) params.set("years", Array.from(state.years).join(","));
+      if (state.topic) params.set("topic", state.topic);
+      if (state.spotlightOnly) params.set("spotlight", "1");
+      const query = params.toString();
+      const nextUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+      window.history.replaceState(null, "", nextUrl);
+    }
+
+    function syncPressedState() {
+      filterControls.forEach((control) => {
+        const type = control.dataset.filterType;
+        const value = control.dataset.filterValue;
+        let pressed = false;
+        if (type === "year") pressed = state.years.has(value);
+        if (type === "taxonomy") pressed = value === "" ? !state.topic : state.topic === value;
+        if (type === "spotlight") pressed = value === "spotlight" ? state.spotlightOnly : !state.spotlightOnly;
+        control.setAttribute("aria-pressed", String(pressed));
+      });
+    }
+
+    function setNodeExpanded(value, expanded) {
+      const toggle = taxonomyToggles.find((item) => item.dataset.toggleValue === value);
+      const children = taxonomyChildren.get(value);
+      if (!toggle || !children) return;
+      toggle.setAttribute("aria-expanded", String(expanded));
+      const label = toggle.closest(".taxonomy-row")?.querySelector(".taxonomy-name")?.textContent || "目录";
+      toggle.setAttribute("aria-label", `${expanded ? "折叠" : "展开"}${label}`);
+      children.hidden = !expanded;
+    }
+
+    function openTopicAncestors(value) {
+      const parts = String(value || "").split("|").filter(Boolean);
+      for (let index = 1; index < parts.length; index += 1) {
+        setNodeExpanded(taxonomyValue(parts.slice(0, index)), true);
+      }
+    }
+
+    function matchesWithoutSpotlight(paper) {
+      const q = state.q.trim().toLowerCase();
+      const taxonomyPath = paperTaxonomyPath(paper);
+      if (q && !paperSearchText(paper).includes(q)) return false;
+      if (state.years.size && !state.years.has(String(paper.year))) return false;
+      if (!taxonomyPathMatches(taxonomyPath, state.topic)) return false;
+      return true;
+    }
+
+    function matchesPaper(paper) {
+      if (!matchesWithoutSpotlight(paper)) return false;
+      if (state.spotlightOnly && paper.is_spotlight !== true) return false;
+      return true;
+    }
+
+    function matchesCountBase(paper) {
+      const q = state.q.trim().toLowerCase();
+      if (q && !paperSearchText(paper).includes(q)) return false;
+      if (state.years.size && !state.years.has(String(paper.year))) return false;
+      if (state.spotlightOnly && paper.is_spotlight !== true) return false;
+      return true;
+    }
+
+    function updateSpotlightCounts(items) {
+      const spotlightItems = items.filter((paper) => paper.is_spotlight === true);
+      allCount.textContent = String(items.length);
+      spotlightCount.textContent = String(spotlightItems.length);
+    }
+
+    function countByTaxonomy(items) {
+      const counts = new Map();
+      counts.set("", items.length);
+      items.forEach((paper) => {
+        const path = paperTaxonomyPath(paper);
+        if (!validTaxonomyPaths.has(taxonomyValue(path))) return;
+        for (let index = 1; index <= path.length; index += 1) {
+          const prefix = taxonomyValue(path.slice(0, index));
+          counts.set(prefix, (counts.get(prefix) || 0) + 1);
+        }
+      });
+      return counts;
+    }
+
+    function applyFilters() {
+      const basePapers = papers.filter(matchesWithoutSpotlight);
+      const visiblePapersAll = papers.filter(matchesPaper);
+      const visiblePapers = visiblePapersAll.slice(0, state.renderLimit);
+      const countBasePapers = papers.filter(matchesCountBase);
+      updateSpotlightCounts(basePapers);
+      taxonomySections.forEach((section) => {
+        const list = section.querySelector(".paper-list");
+        if (list) list.innerHTML = "";
+        section.hidden = true;
+      });
+      const navCounts = countByTaxonomy(countBasePapers);
+      const sectionCounts = countByTaxonomy(visiblePapersAll);
+      const grouped = new Map();
+      visiblePapers.forEach((paper) => {
+        const path = paperTaxonomyPath(paper);
+        const pathValue = taxonomyValue(path);
+        if (!validTaxonomyPaths.has(pathValue)) return;
+        if (!grouped.has(pathValue)) grouped.set(pathValue, []);
+        grouped.get(pathValue).push(paper);
+      });
+
+      document.querySelectorAll("[data-taxonomy-count]").forEach((node) => {
+        node.textContent = String(navCounts.get(node.dataset.taxonomyCount) || 0);
+      });
+      document.querySelectorAll("[data-section-count]").forEach((node) => {
+        node.textContent = String(sectionCounts.get(node.dataset.sectionCount) || 0);
+      });
+
+      grouped.forEach((items, pathValue) => {
+        const path = pathValue.split("|").filter(Boolean);
+        for (let index = 1; index <= path.length; index += 1) {
+          const section = taxonomySections.get(taxonomyValue(path.slice(0, index)));
+          if (section) section.hidden = false;
+        }
+        const section = taxonomySections.get(pathValue);
+        if (!section) return;
+        const list = section.querySelector(".paper-list");
+        if (list) list.innerHTML = items.map(renderPaperCard).join("");
+      });
+      const rangeLabel = visiblePapers.length === visiblePapersAll.length ? `${visiblePapersAll.length}` : `${visiblePapers.length} / ${visiblePapersAll.length}`;
+      resultStatus.textContent = `显示 ${rangeLabel} 篇${state.spotlightOnly ? " Spotlight 论文" : "论文"}`;
+      const remaining = Math.max(visiblePapersAll.length - visiblePapers.length, 0);
+      if (loadMoreWrap && loadMoreButton) {
+        loadMoreWrap.hidden = remaining === 0;
+        loadMoreButton.textContent = `加载更多论文（剩余 ${remaining} 篇）`;
+      }
+      emptyState.hidden = visiblePapersAll.length !== 0;
+      syncPressedState();
+      openTopicAncestors(state.topic);
+      writeUrlState();
+    }
+
+    mobileFilterToggle?.addEventListener("click", toggleFilterPanel);
+
+    loadMoreButton?.addEventListener("click", () => {
+      state.renderLimit += RENDER_INCREMENT;
+      applyFilters();
+    });
+
+    taxonomyToggles.forEach((toggle) => {
+      toggle.addEventListener("click", () => {
+        const value = toggle.dataset.toggleValue;
+        setNodeExpanded(value, toggle.getAttribute("aria-expanded") !== "true");
+      });
+    });
+
+    filterControls.forEach((control) => {
+      control.addEventListener("click", (event) => {
+        event.preventDefault();
+        const type = control.dataset.filterType;
+        const value = control.dataset.filterValue;
+        if (type === "year") {
+          state.years.has(value) ? state.years.delete(value) : state.years.add(value);
+        }
+        if (type === "taxonomy") {
+          state.topic = value === "" || state.topic === value ? "" : value;
+        }
+        if (type === "spotlight") {
+          state.spotlightOnly = value === "spotlight";
+        }
+        resetRenderLimit();
+        applyFilters();
+        if (type === "taxonomy") {
+          const href = control.getAttribute("href");
+          const target = value === "" || !href ? document.querySelector("#main") : document.getElementById(href.slice(1));
+          if (target && !target.hidden) target.scrollIntoView({ block: "start" });
+        }
+      });
+    });
+
+    searchInput.addEventListener("input", () => {
+      state.q = searchInput.value;
+      resetRenderLimit();
+      applyFilters();
+    });
+
+    async function loadPapers() {
+      readUrlState();
+      resultStatus.textContent = "正在加载论文数据…";
+      try {
+        const response = await fetch(paperDataUrl);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        papers = await response.json();
+        totalCount.textContent = String(papers.length);
+        applyFilters();
+      } catch (error) {
+        resultStatus.textContent = `论文数据加载失败：${error.message}`;
+        emptyState.hidden = false;
+      }
+    }
+
+    loadPapers();
+  </script>
+</body>
+</html>
